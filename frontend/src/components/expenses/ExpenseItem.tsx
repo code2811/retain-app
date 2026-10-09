@@ -7,7 +7,7 @@ import {
   IconButton,
 } from '@mui/material';
 import { Visibility, Edit, Delete } from '@mui/icons-material';
-import { Expense } from '../../types/expense.types';
+import type { Expense } from '../../types/expense.types';
 
 interface ExpenseItemProps {
   expense: Expense;
@@ -47,7 +47,7 @@ const ExpenseItem: React.FC<ExpenseItemProps> = ({
     <TableRow hover>
       <TableCell>{formatDate(expense.date)}</TableCell>
       <TableCell>
-        <Typography variant="body2" fontWeight="medium">
+        <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
           {expense.title}
         </Typography>
         {expense.description && (
@@ -60,7 +60,7 @@ const ExpenseItem: React.FC<ExpenseItemProps> = ({
         <Chip label={expense.category} size="small" />
       </TableCell>
       <TableCell>
-        <Typography color="error" fontWeight="bold">
+        <Typography color="error" sx={{ fontWeight: 'bold' }}>
           {formatCurrency(expense.amount)}
         </Typography>
       </TableCell>

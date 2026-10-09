@@ -12,7 +12,7 @@ import {
 import { Search, Clear, FilterList } from '@mui/icons-material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV2';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
   setSearch,
@@ -25,7 +25,7 @@ import {
   resetFilters,
 } from '../../store/slices/filterSlice';
 import { categoryService } from '../../services/categoryService';
-import { Category } from '../../types/category.types';
+import type { Category } from '../../types/category.types';
 
 const FilterSidebar: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -137,19 +137,20 @@ const FilterSidebar: React.FC = () => {
 
   return (
     <Paper sx={{ width: 300, p: 2, height: 'fit-content' }}>
-      <Box display="flex" alignItems="center" mb={2}>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
         <FilterList sx={{ mr: 1 }} />
         <Typography variant="h6">Filters</Typography>
       </Box>
 
-      <Box display="flex" flexDirection="column" gap={2}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         {/* Search */}
         <TextField
           fullWidth
           label="Search"
           value={filters.search}
           onChange={handleSearchChange}
-          InputProps={{
+          slotProps={{
+            input: {
             startAdornment: (
               <InputAdornment position="start">
                 <Search />
@@ -162,6 +163,7 @@ const FilterSidebar: React.FC = () => {
                 </IconButton>
               </InputAdornment>
             ),
+            },
           }}
         />
 
@@ -222,15 +224,17 @@ const FilterSidebar: React.FC = () => {
         </LocalizationProvider>
 
         {/* Amount Range */}
-        <Box display="flex" gap={1}>
+        <Box sx={{ display: 'flex', gap: 1 }}>
           <TextField
             fullWidth
             label="Min Amount"
             type="number"
             value={minAmount}
             onChange={handleMinAmountChange}
-            InputProps={{
+            slotProps={{
+              input: {
               startAdornment: <InputAdornment position="start">$</InputAdornment>,
+              },
             }}
           />
           <TextField
@@ -239,8 +243,10 @@ const FilterSidebar: React.FC = () => {
             type="number"
             value={maxAmount}
             onChange={handleMaxAmountChange}
-            InputProps={{
+            slotProps={{
+              input: {
               startAdornment: <InputAdornment position="start">$</InputAdornment>,
+              },
             }}
           />
         </Box>

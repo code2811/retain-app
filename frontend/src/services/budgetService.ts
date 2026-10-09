@@ -1,5 +1,5 @@
 import api from './api';
-import { Budget, BudgetFormData, BudgetSummary } from '../types/budget.types';
+import type { Budget, BudgetFormData, BudgetSummary } from '../types/budget.types';
 
 export const budgetService = {
   async getBudget(month?: string): Promise<{ success: boolean; data: Budget | null }> {

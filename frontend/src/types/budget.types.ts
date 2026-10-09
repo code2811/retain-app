@@ -1,3 +1,5 @@
+import type { Expense } from './expense.types';
+
 export interface Budget {
   id: string;
   userId: string;

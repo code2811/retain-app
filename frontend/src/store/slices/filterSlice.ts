@@ -1,5 +1,6 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { ExpenseFilters } from '../../types/expense.types';
+import { createSlice } from '@reduxjs/toolkit';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import type { ExpenseFilters } from '../../types/expense.types';
 
 const initialState: ExpenseFilters = {
   search: '',

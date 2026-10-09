@@ -14,7 +14,7 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { useAuth } from '../../context/AuthContext';
-import { LoginCredentials } from '../../types/user.types';
+import type { LoginCredentials } from '../../types/user.types';
 
 const schema = yup.object({
   email: yup.string().email('Invalid email format').required('Email is required'),
@@ -39,8 +39,8 @@ const Login: React.FC = () => {
       setFormError('');
       await login(data);
       navigate('/dashboard');
-    } catch (err: any) {
-      setFormError(err.message || 'Login failed');
+    } catch (err: unknown) {
+      setFormError(err instanceof Error ? err.message : 'Login failed');
     }
   };
 
@@ -109,7 +109,7 @@ const Login: React.FC = () => {
               {isLoading ? <CircularProgress size={24} /> : 'Login'}
             </Button>
 
-            <Box textAlign="center">
+            <Box sx={{ textAlign: 'center' }}>
               <Typography variant="body2" color="textSecondary">
                 Don't have an account?{' '}
                 <Link to="/register" style={{ textDecoration: 'none' }}>

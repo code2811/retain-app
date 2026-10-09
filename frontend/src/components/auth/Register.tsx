@@ -14,7 +14,7 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { useAuth } from '../../context/AuthContext';
-import { RegisterData } from '../../types/user.types';
+import type { RegisterData } from '../../types/user.types';
 
 const schema = yup.object({
   name: yup.string().required('Name is required').min(2, 'Name must be at least 2 characters'),
@@ -43,8 +43,8 @@ const Register: React.FC = () => {
       setFormError('');
       await registerUser(data);
       navigate('/dashboard');
-    } catch (err: any) {
-      setFormError(err.message || 'Registration failed');
+    } catch (err: unknown) {
+      setFormError(err instanceof Error ? err.message : 'Registration failed');
     }
   };
 
@@ -134,7 +134,7 @@ const Register: React.FC = () => {
               {isLoading ? <CircularProgress size={24} /> : 'Create Account'}
             </Button>
 
-            <Box textAlign="center">
+            <Box sx={{ textAlign: 'center' }}>
               <Typography variant="body2" color="textSecondary">
                 Already have an account?{' '}
                 <Link to="/login" style={{ textDecoration: 'none' }}>

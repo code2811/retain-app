@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User, LoginCredentials, RegisterData, AuthState } from '../types/user.types';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import type { ReactNode } from 'react';
+import type { LoginCredentials, RegisterData, AuthState } from '../types/user.types';
 import { authService } from '../services/authService';
 
 interface AuthContextType extends AuthState {
@@ -82,11 +83,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         isLoading: false,
         error: null,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       setState(prev => ({
         ...prev,
         isLoading: false,
-        error: error.response?.data?.message || 'Login failed',
+        error: error instanceof Error ? error.message : 'Login failed',
       }));
       throw error;
     }
@@ -108,11 +109,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         isLoading: false,
         error: null,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       setState(prev => ({
         ...prev,
         isLoading: false,
-        error: error.response?.data?.message || 'Registration failed',
+        error: error instanceof Error ? error.message : 'Registration failed',
       }));
       throw error;
     }

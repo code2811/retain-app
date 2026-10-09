@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -16,18 +17,24 @@ import {
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV2';
 import { expenseService } from '../../services/expenseService';
 import { categoryService } from '../../services/categoryService';
-import { Expense, ExpenseFormData } from '../../types/expense.types';
-import { Category } from '../../types/category.types';
+import type { Expense, ExpenseFormData } from '../../types/expense.types';
+import type { Category } from '../../types/category.types';
+
+interface ApiErrorResponse {
+  error?: string;
+}
 
 const schema = yup.object({
   title: yup.string().required('Title is required').max(100, 'Title cannot exceed 100 characters'),
   description: yup.string().max(500, 'Description cannot exceed 500 characters'),
   amount: yup.number().required('Amount is required').min(0.01, 'Amount must be greater than 0'),
   category: yup.string().required('Category is required'),
-  date: yup.date().required('Date is required'),
+  date: yup.string()
+    .required('Date is required')
+    .test('valid-date', 'Date is invalid', (value) => !value || !Number.isNaN(Date.parse(value))),
   paymentMethod: yup.string().oneOf(['cash', 'card', 'bank_transfer', 'mobile_money']).required('Payment method is required'),
   notes: yup.string().max(1000, 'Notes cannot exceed 1000 characters'),
 });
@@ -121,8 +128,9 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ open, onClose, onSuccess, exp
       }
 
       onSuccess();
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to save expense');
+    } catch (err: unknown) {
+      const message = axios.isAxiosError<ApiErrorResponse>(err) ? err.response?.data?.error : undefined;
+      setError(message || 'Failed to save expense');
     } finally {
       setLoading(false);
     }
@@ -181,7 +189,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ open, onClose, onSuccess, exp
               fullWidth
               label="Amount *"
               type="number"
-              inputProps={{ step: '0.01', min: '0.01' }}
+              slotProps={{ htmlInput: { step: '0.01', min: '0.01' } }}
               {...register('amount')}
               error={!!errors.amount}
               helperText={errors.amount?.message}

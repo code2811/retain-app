@@ -1,5 +1,5 @@
 import api from './api';
-import { Expense, ExpenseFormData, ExpensesResponse, ExpenseFilters } from '../types/expense.types';
+import type { Expense, ExpenseFormData, ExpensesResponse, ExpenseFilters } from '../types/expense.types';
 
 export const expenseService = {
   async getExpenses(filters: ExpenseFilters, page: number = 1, limit: number = 10): Promise<ExpensesResponse> {

@@ -13,8 +13,6 @@ import {
   Divider,
 } from '@mui/material';
 import {
-  TrendingUp,
-  TrendingDown,
   AccountBalanceWallet,
   Category,
 } from '@mui/icons-material';
@@ -68,21 +66,21 @@ const Dashboard: React.FC = () => {
         Dashboard
       </Typography>
       
-      <Typography variant="body1" color="textSecondary" paragraph>
+      <Typography variant="body1" color="textSecondary" sx={{ mb: 2 }}>
         Welcome back! Here's your spending overview for this month.
       </Typography>
 
       <Grid container spacing={3}>
         {/* Budget Status Card */}
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Card>
             <CardContent>
-              <Box display="flex" alignItems="center" mb={2}>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <AccountBalanceWallet sx={{ mr: 1, color: 'primary.main' }} />
                 <Typography variant="h6">Budget Status</Typography>
               </Box>
               
-              <Box mb={2}>
+              <Box sx={{ mb: 2 }}>
                 <Typography variant="body2" color="textSecondary" gutterBottom>
                   Monthly Budget: ${dashboardData.budget.toFixed(2)}
                 </Typography>
@@ -90,7 +88,7 @@ const Dashboard: React.FC = () => {
                   ${dashboardData.totalSpent.toFixed(2)} / ${dashboardData.budget.toFixed(2)}
                 </Typography>
                 
-                <Box display="flex" alignItems="center" mb={1}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                   <LinearProgress
                     variant="determinate"
                     value={dashboardData.percentage}
@@ -105,14 +103,14 @@ const Dashboard: React.FC = () => {
                 <Typography
                   variant="body1"
                   color={`${getStatusColor(dashboardData.status)}.main`}
-                  fontWeight="bold"
+                  sx={{ fontWeight: 'bold' }}
                 >
                   {getStatusText(dashboardData.status)}
                 </Typography>
               </Box>
               
               <Grid container spacing={2}>
-                <Grid item xs={6}>
+                <Grid size={6}>
                   <Paper variant="outlined" sx={{ p: 2, textAlign: 'center' }}>
                     <Typography variant="body2" color="textSecondary">
                       Spent
@@ -122,7 +120,7 @@ const Dashboard: React.FC = () => {
                     </Typography>
                   </Paper>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid size={6}>
                   <Paper variant="outlined" sx={{ p: 2, textAlign: 'center' }}>
                     <Typography variant="body2" color="textSecondary">
                       Remaining
@@ -138,10 +136,10 @@ const Dashboard: React.FC = () => {
         </Grid>
 
         {/* Spending by Category */}
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Card>
             <CardContent>
-              <Box display="flex" alignItems="center" mb={2}>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <Category sx={{ mr: 1, color: 'primary.main' }} />
                 <Typography variant="h6">Spending by Category</Typography>
               </Box>
@@ -169,7 +167,7 @@ const Dashboard: React.FC = () => {
         </Grid>
 
         {/* Recent Expenses */}
-        <Grid item xs={12}>
+        <Grid size={12}>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>

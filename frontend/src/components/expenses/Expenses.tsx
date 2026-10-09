@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import {
   Box,
   Typography,
@@ -17,11 +18,15 @@ import {
 import { Add } from '@mui/icons-material';
 import { useAppSelector } from '../../store/hooks';
 import { expenseService } from '../../services/expenseService';
-import { Expense } from '../../types/expense.types';
+import type { Expense } from '../../types/expense.types';
 import ExpenseForm from './ExpenseForm';
 import ExpenseDetail from './ExpenseDetail';
 import ExpenseItem from './ExpenseItem';
 import FilterSidebar from '../filters/FilterSidebar';
+
+interface ApiErrorResponse {
+  error?: string;
+}
 
 const Expenses: React.FC = () => {
   const filters = useAppSelector((state) => state.filters);
@@ -43,8 +48,9 @@ const Expenses: React.FC = () => {
       const response = await expenseService.getExpenses(filters, page + 1, rowsPerPage);
       setExpenses(response.data.expenses);
       setTotal(response.data.pagination.total);
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to load expenses');
+    } catch (err: unknown) {
+      const message = axios.isAxiosError<ApiErrorResponse>(err) ? err.response?.data?.error : undefined;
+      setError(message || 'Failed to load expenses');
     } finally {
       setLoading(false);
     }
@@ -54,7 +60,7 @@ const Expenses: React.FC = () => {
     loadExpenses();
   }, [filters, page, rowsPerPage]);
 
-  const handleChangePage = (event: unknown, newPage: number) => {
+  const handleChangePage = (_event: unknown, newPage: number) => {
     setPage(newPage);
   };
 
@@ -78,8 +84,9 @@ const Expenses: React.FC = () => {
       try {
         await expenseService.deleteExpense(id);
         loadExpenses();
-      } catch (err: any) {
-        setError(err.response?.data?.error || 'Failed to delete expense');
+      } catch (err: unknown) {
+        const message = axios.isAxiosError<ApiErrorResponse>(err) ? err.response?.data?.error : undefined;
+        setError(message || 'Failed to delete expense');
       }
     }
   };
@@ -119,7 +126,7 @@ const Expenses: React.FC = () => {
         )}
 
         {loading ? (
-          <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
             <CircularProgress />
           </Box>
         ) : (
@@ -140,7 +147,7 @@ const Expenses: React.FC = () => {
                   {expenses.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={6} align="center">
-                        <Typography color="textSecondary" py={3}>
+                        <Typography color="textSecondary" sx={{ py: 3 }}>
                           No expenses found. {filters.search ? 'Try a different search.' : 'Add your first expense!'}
                         </Typography>
                       </TableCell>

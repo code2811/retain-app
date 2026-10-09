@@ -1,3 +1,6 @@
+import type { Expense } from './expense.types';
+import type { User } from './user.types';
+
 export interface Category {
   id: string;
   name: string;

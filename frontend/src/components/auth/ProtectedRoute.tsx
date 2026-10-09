@@ -12,7 +12,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ requireAdmin = false })
 
   if (isLoading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
         <CircularProgress />
       </Box>
     );

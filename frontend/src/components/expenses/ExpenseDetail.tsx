@@ -12,7 +12,7 @@ import {
   Paper,
 } from '@mui/material';
 import { Edit, Delete } from '@mui/icons-material';
-import { Expense } from '../../types/expense.types';
+import type { Expense } from '../../types/expense.types';
 
 interface ExpenseDetailProps {
   open: boolean;
@@ -62,7 +62,7 @@ const ExpenseDetail: React.FC<ExpenseDetailProps> = ({
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>
-        <Box display="flex" justifyContent="space-between" alignItems="center">
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Typography variant="h6">{expense.title}</Typography>
           <Chip
             label={formatCurrency(expense.amount)}
@@ -74,21 +74,21 @@ const ExpenseDetail: React.FC<ExpenseDetailProps> = ({
       </DialogTitle>
 
       <DialogContent>
-        <Box mb={2}>
+        <Box sx={{ mb: 2 }}>
           <Typography variant="body2" color="textSecondary" gutterBottom>
             Category
           </Typography>
           <Chip label={expense.category} size="small" />
         </Box>
 
-        <Box mb={2}>
+        <Box sx={{ mb: 2 }}>
           <Typography variant="body2" color="textSecondary" gutterBottom>
             Date
           </Typography>
           <Typography>{formatDate(expense.date)}</Typography>
         </Box>
 
-        <Box mb={2}>
+        <Box sx={{ mb: 2 }}>
           <Typography variant="body2" color="textSecondary" gutterBottom>
             Payment Method
           </Typography>
@@ -101,7 +101,7 @@ const ExpenseDetail: React.FC<ExpenseDetailProps> = ({
         </Box>
 
         {expense.description && (
-          <Box mb={2}>
+          <Box sx={{ mb: 2 }}>
             <Typography variant="body2" color="textSecondary" gutterBottom>
               Description
             </Typography>
@@ -110,7 +110,7 @@ const ExpenseDetail: React.FC<ExpenseDetailProps> = ({
         )}
 
         {expense.notes && (
-          <Box mb={2}>
+          <Box sx={{ mb: 2 }}>
             <Typography variant="body2" color="textSecondary" gutterBottom>
               Notes
             </Typography>
@@ -126,7 +126,7 @@ const ExpenseDetail: React.FC<ExpenseDetailProps> = ({
           <Typography variant="body2" color="textSecondary" gutterBottom>
             Additional Information
           </Typography>
-          <Box display="flex" gap={3}>
+          <Box sx={{ display: 'flex', gap: 3 }}>
             <Box>
               <Typography variant="caption" color="textSecondary">
                 Created

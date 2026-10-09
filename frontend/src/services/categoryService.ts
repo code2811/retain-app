@@ -1,5 +1,5 @@
 import api from './api';
-import { Category, CategoryFormData } from '../types/category.types';
+import type { Category, CategoryFormData } from '../types/category.types';
 
 export const categoryService = {
   async getCategories(): Promise<{ success: boolean; data: Category[] }> {
