@@ -1,10 +1,11 @@
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 import { Types } from 'mongoose';
 
 export const generateToken = (id: Types.ObjectId): string => {
-  return jwt.sign({ id }, process.env.JWT_SECRET!, {
-    expiresIn: process.env.JWT_EXPIRE || '7d',
-  });
+  const options: SignOptions = {
+    expiresIn: process.env.JWT_EXPIRE as SignOptions['expiresIn'] || '7d',
+  };
+  return jwt.sign({ id }, process.env.JWT_SECRET!, options);
 };
 
 export const verifyToken = (token: string): { id: string } => {

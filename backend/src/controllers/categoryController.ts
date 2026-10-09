@@ -4,7 +4,7 @@ import Expense from '../models/Expense';
 import { ICategoryInput } from '../interfaces/category.interface';
 
 export const getCategories = async (
-  req: Request,
+  _req: Request,
   res: Response,
   next: NextFunction
 ) => {
@@ -50,10 +50,11 @@ export const updateCategory = async (
     );
 
     if (!category) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         error: 'Category not found',
       });
+      return;
     }
 
     res.status(200).json({
@@ -74,18 +75,20 @@ export const deleteCategory = async (
     const category = await Category.findById(req.params.id);
 
     if (!category) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         error: 'Category not found',
       });
+      return;
     }
 
     // Check if this is the "Uncategorized" category
     if (category.name.toLowerCase() === 'uncategorized') {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         error: 'Cannot delete the default Uncategorized category',
       });
+      return;
     }
 
     // Find or create default "Uncategorized" category

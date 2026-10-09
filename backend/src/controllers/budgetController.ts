@@ -36,10 +36,11 @@ export const setBudget = async (
 
     // Validate month format
     if (!/^\d{4}-\d{2}$/.test(month)) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         error: 'Month must be in YYYY-MM format',
       });
+      return;
     }
 
     // Create or update budget
@@ -74,7 +75,7 @@ export const getBudgetSummary = async (
     });
 
     if (!budget) {
-      return res.status(200).json({
+      res.status(200).json({
         success: true,
         data: {
           budget: 0,
@@ -84,6 +85,7 @@ export const getBudgetSummary = async (
           percentage: 0,
         },
       });
+      return;
     }
 
     // Calculate total spent for the month

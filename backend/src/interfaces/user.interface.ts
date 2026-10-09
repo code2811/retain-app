@@ -25,7 +25,7 @@ export interface ILoginInput {
 
 export interface IAuthResponse {
   success: boolean;
-  data: {
+  data?: {
     user: {
       id: string;
       email: string;
@@ -35,5 +35,6 @@ export interface IAuthResponse {
     };
     token: string;
   };
+  error?: string;
   message?: string;
 }

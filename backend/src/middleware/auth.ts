@@ -42,7 +42,7 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
       }
 
       req.user = user;
-      next();
+      return next();
     } catch (error) {
       return res.status(401).json({
         success: false,
@@ -50,7 +50,7 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
       });
     }
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 
@@ -70,6 +70,6 @@ export const authorize = (...roles: string[]) => {
       });
     }
 
-    next();
+    return next();
   };
 };

@@ -1,42 +1,59 @@
 import { Request, Response, NextFunction } from 'express';
 
+interface ServerError {
+  name?: string;
+  message?: string;
+  code?: number;
+  statusCode?: number;
+  errors?: Record<string, { message: string }>;
+}
+
+const getServerError = (error: unknown): ServerError => {
+  if (typeof error === 'object' && error !== null) {
+    return error as ServerError;
+  }
+  return { message: 'Server Error' };
+};
+
 export const errorHandler = (
-  err: any,
-  req: Request,
+  err: unknown,
+  _req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ) => {
-  let error = { ...err };
-  error.message = err.message;
+  const serverError = getServerError(err);
+  let error: { message: string; statusCode?: number } = {
+    message: serverError.message || 'Server Error',
+  };
 
   // Log error for development
   console.error(err);
 
   // Mongoose bad ObjectId
-  if (err.name === 'CastError') {
+  if (serverError.name === 'CastError') {
     const message = 'Resource not found';
     error = { message, statusCode: 404 };
   }
 
   // Mongoose duplicate key
-  if (err.code === 11000) {
+  if (serverError.code === 11000) {
     const message = 'Duplicate field value entered';
     error = { message, statusCode: 400 };
   }
 
   // Mongoose validation error
-  if (err.name === 'ValidationError') {
-    const message = Object.values(err.errors).map((val: any) => val.message).join(', ');
+  if (serverError.name === 'ValidationError' && serverError.errors) {
+    const message = Object.values(serverError.errors).map((val) => val.message).join(', ');
     error = { message, statusCode: 400 };
   }
 
   // JWT errors
-  if (err.name === 'JsonWebTokenError') {
+  if (serverError.name === 'JsonWebTokenError') {
     const message = 'Invalid token';
     error = { message, statusCode: 401 };
   }
 
-  if (err.name === 'TokenExpiredError') {
+  if (serverError.name === 'TokenExpiredError') {
     const message = 'Token expired';
     error = { message, statusCode: 401 };
   }

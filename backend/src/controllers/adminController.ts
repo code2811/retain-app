@@ -1,11 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import User from '../models/User';
 import Expense from '../models/Expense';
-import Category from '../models/Category';
 import { ICategoryStats } from '../interfaces/category.interface';
 
 export const getPlatformInsights = async (
-  req: Request,
+  _req: Request,
   res: Response,
   next: NextFunction
 ) => {

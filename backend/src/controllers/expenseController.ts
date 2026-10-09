@@ -163,10 +163,11 @@ export const getExpense = async (
     });
 
     if (!expense) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         error: 'Expense not found',
       });
+      return;
     }
 
     res.status(200).json({
@@ -210,10 +211,11 @@ export const updateExpense = async (
     });
 
     if (!expense) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         error: 'Expense not found',
       });
+      return;
     }
 
     expense = await Expense.findByIdAndUpdate(
@@ -243,10 +245,11 @@ export const deleteExpense = async (
     });
 
     if (!expense) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         error: 'Expense not found',
       });
+      return;
     }
 
     await expense.deleteOne();

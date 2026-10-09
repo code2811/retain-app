@@ -14,10 +14,11 @@ export const register = async (
     // Check if user exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         error: 'User already exists with this email',
       });
+      return;
     }
 
     // Create user
@@ -60,19 +61,21 @@ export const login = async (
     // Check for user
     const user = await User.findOne({ email }).select('+password');
     if (!user) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         error: 'Invalid credentials',
       });
+      return;
     }
 
     // Check password
     const isPasswordMatch = await user.comparePassword(password);
     if (!isPasswordMatch) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         error: 'Invalid credentials',
       });
+      return;
     }
 
     // Generate token
@@ -105,10 +108,11 @@ export const getCurrentUser = async (
     const user = await User.findById(req.user?._id);
     
     if (!user) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         error: 'User not found',
       });
+      return;
     }
 
     res.status(200).json({
@@ -127,7 +131,7 @@ export const getCurrentUser = async (
 };
 
 export const logout = async (
-  req: Request,
+  _req: Request,
   res: Response,
   next: NextFunction
 ) => {
