@@ -2,6 +2,7 @@ import express from 'express';
 import { body } from 'express-validator';
 import { 
   getExpenses, 
+  getExpenseSummary,
   getExpense, 
   createExpense, 
   updateExpense, 
@@ -27,6 +28,7 @@ const expenseValidation = [
 
 // Routes
 router.get('/', getExpenses);
+router.get('/summary', getExpenseSummary);
 router.get('/:id', getExpense);
 router.post('/', expenseValidation, createExpense);
 router.put('/:id', expenseValidation, updateExpense);

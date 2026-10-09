@@ -1,77 +1,169 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import {
-  Grid,
-  Paper,
-  Typography,
+  Alert,
   Box,
+  Button,
   Card,
   CardContent,
+  CircularProgress,
+  Divider,
+  Grid,
   LinearProgress,
   List,
   ListItem,
   ListItemText,
-  Divider,
+  TextField,
+  Typography,
 } from '@mui/material';
-import {
-  AccountBalanceWallet,
-  Category,
-} from '@mui/icons-material';
+import { AccountBalanceWallet, Category, Save } from '@mui/icons-material';
+import { budgetService } from '../../services/budgetService';
+import { expenseService } from '../../services/expenseService';
+import type { Budget, DashboardData, BudgetStatus } from '../../types/budget.types';
+import { getBudgetStatus } from '../../utils/budgetStatus';
+
+interface ApiErrorResponse {
+  error?: string;
+}
+
+const currentMonth = new Date().toISOString().slice(0, 7);
+
+const getErrorMessage = (error: unknown, fallback: string): string => {
+  if (axios.isAxiosError<ApiErrorResponse>(error)) {
+    return error.response?.data?.error || fallback;
+  }
+  return fallback;
+};
+
+const getStatusColor = (status: BudgetStatus): 'success' | 'warning' | 'error' => {
+  if (status === 'over') return 'error';
+  if (status === 'approaching') return 'warning';
+  return 'success';
+};
+
+const getStatusText = (status: BudgetStatus): string => {
+  if (status === 'over') return 'Over Budget';
+  if (status === 'approaching') return 'Approaching Limit';
+  return 'Within Budget';
+};
+
+const formatCurrency = (amount: number): string => `$${amount.toFixed(2)}`;
 
 const Dashboard: React.FC = () => {
-  // Mock data for now - will be replaced with real API calls
-  const dashboardData = {
-    totalSpent: 1250.75,
-    remainingBudget: 749.25,
-    budget: 2000,
-    highestExpense: 350,
-    status: 'within' as const,
-    percentage: 62.5,
-    categorySpending: [
-      { category: 'Food & Dining', total: 450, percentage: 36 },
-      { category: 'Transportation', total: 200, percentage: 16 },
-      { category: 'Entertainment', total: 180, percentage: 14.4 },
-      { category: 'Shopping', total: 150, percentage: 12 },
-      { category: 'Bills', total: 120, percentage: 9.6 },
-      { category: 'Other', total: 150.75, percentage: 12 },
-    ],
-    recentExpenses: [
-      { id: 1, title: 'Grocery Shopping', amount: 85.50, date: '2024-01-15', category: 'Food' },
-      { id: 2, title: 'Gas', amount: 45.00, date: '2024-01-14', category: 'Transportation' },
-      { id: 3, title: 'Netflix Subscription', amount: 15.99, date: '2024-01-13', category: 'Entertainment' },
-      { id: 4, title: 'Electric Bill', amount: 120.00, date: '2024-01-12', category: 'Bills' },
-    ],
-  };
+  const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+  const [budgetAmount, setBudgetAmount] = useState('');
+  const [budget, setBudget] = useState<Budget | null>(null);
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [savingBudget, setSavingBudget] = useState(false);
+  const [error, setError] = useState('');
+  const [reloadKey, setReloadKey] = useState(0);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'within': return 'success';
-      case 'approaching': return 'warning';
-      case 'over': return 'error';
-      default: return 'info';
+  useEffect(() => {
+    const loadDashboard = async () => {
+      try {
+        setLoading(true);
+        setError('');
+        const [budgetResponse, expenseResponse] = await Promise.all([
+          budgetService.getBudget(selectedMonth),
+          expenseService.getExpenseSummary(selectedMonth),
+        ]);
+
+        const currentBudget = budgetResponse.data;
+        const summary = expenseResponse.data;
+        const statusResult = getBudgetStatus(summary.totalSpent, currentBudget?.amount || 0);
+        const budgetSummary = currentBudget
+          ? {
+              budget: currentBudget.amount,
+              spent: summary.totalSpent,
+              remaining: currentBudget.amount - summary.totalSpent,
+              status: statusResult.status,
+              percentage: statusResult.percentage,
+            }
+          : {
+              budget: 0,
+              spent: summary.totalSpent,
+              remaining: 0,
+              status: 'within' as const,
+              percentage: 0,
+            };
+
+        setBudget(currentBudget);
+        setBudgetAmount(currentBudget?.amount.toString() || '');
+        setDashboardData({
+          totalSpent: summary.totalSpent,
+          remainingBudget: budgetSummary.remaining,
+          highestExpense: summary.highestExpense,
+          categorySpending: summary.categorySpending,
+          recentExpenses: summary.recentExpenses,
+          budgetSummary,
+        });
+      } catch (loadError: unknown) {
+        setError(getErrorMessage(loadError, 'Failed to load dashboard data'));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    void loadDashboard();
+  }, [selectedMonth, reloadKey]);
+
+  const handleBudgetSave = async () => {
+    const amount = Number(budgetAmount);
+    if (!Number.isFinite(amount) || amount < 0) {
+      setError('Budget must be a valid non-negative amount');
+      return;
+    }
+
+    try {
+      setSavingBudget(true);
+      setError('');
+      await budgetService.setBudget({ month: selectedMonth, amount });
+      setReloadKey((value) => value + 1);
+    } catch (saveError: unknown) {
+      setError(getErrorMessage(saveError, 'Failed to save budget'));
+    } finally {
+      setSavingBudget(false);
     }
   };
 
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'within': return 'Within Budget';
-      case 'approaching': return 'Approaching Limit';
-      case 'over': return 'Over Budget';
-      default: return 'No Budget Set';
-    }
-  };
+  if (loading && !dashboardData) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (!dashboardData) {
+    return <Alert severity="error">{error || 'Dashboard data is unavailable'}</Alert>;
+  }
+
+  const { budgetSummary } = dashboardData;
+  const hasBudget = budget !== null;
+  const statusColor = hasBudget ? getStatusColor(budgetSummary.status) : 'info';
 
   return (
     <Box>
-      <Typography variant="h4" gutterBottom>
-        Dashboard
-      </Typography>
-      
-      <Typography variant="body1" color="textSecondary" sx={{ mb: 2 }}>
-        Welcome back! Here's your spending overview for this month.
-      </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, gap: 2 }}>
+        <Box>
+          <Typography variant="h4">Dashboard</Typography>
+          <Typography variant="body1" color="textSecondary">
+            Your spending overview for the selected month.
+          </Typography>
+        </Box>
+        <TextField
+          label="Month"
+          type="month"
+          value={selectedMonth}
+          onChange={(event) => setSelectedMonth(event.target.value)}
+          slotProps={{ inputLabel: { shrink: true } }}
+        />
+      </Box>
+
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
       <Grid container spacing={3}>
-        {/* Budget Status Card */}
         <Grid size={{ xs: 12, md: 6 }}>
           <Card>
             <CardContent>
@@ -79,63 +171,56 @@ const Dashboard: React.FC = () => {
                 <AccountBalanceWallet sx={{ mr: 1, color: 'primary.main' }} />
                 <Typography variant="h6">Budget Status</Typography>
               </Box>
-              
-              <Box sx={{ mb: 2 }}>
-                <Typography variant="body2" color="textSecondary" gutterBottom>
-                  Monthly Budget: ${dashboardData.budget.toFixed(2)}
-                </Typography>
-                <Typography variant="h4" color="primary" gutterBottom>
-                  ${dashboardData.totalSpent.toFixed(2)} / ${dashboardData.budget.toFixed(2)}
-                </Typography>
-                
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <LinearProgress
-                    variant="determinate"
-                    value={dashboardData.percentage}
-                    color={getStatusColor(dashboardData.status)}
-                    sx={{ flexGrow: 1, mr: 1, height: 10, borderRadius: 5 }}
-                  />
-                  <Typography variant="body2">
-                    {dashboardData.percentage.toFixed(1)}%
+
+              {!hasBudget ? (
+                <Alert severity="info" sx={{ mb: 2 }}>
+                  No budget set for {selectedMonth}.
+                </Alert>
+              ) : (
+                <>
+                  <Typography variant="body2" color="textSecondary" gutterBottom>
+                    Monthly budget: {formatCurrency(budgetSummary.budget)}
                   </Typography>
-                </Box>
-                
-                <Typography
-                  variant="body1"
-                  color={`${getStatusColor(dashboardData.status)}.main`}
-                  sx={{ fontWeight: 'bold' }}
+                  <Typography variant="h4" color="primary" gutterBottom>
+                    {formatCurrency(dashboardData.totalSpent)} / {formatCurrency(budgetSummary.budget)}
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                    <LinearProgress
+                      variant="determinate"
+                      value={Math.min(budgetSummary.percentage, 100)}
+                      color={statusColor}
+                      sx={{ flexGrow: 1, mr: 1, height: 10, borderRadius: 5 }}
+                    />
+                    <Typography variant="body2">{budgetSummary.percentage.toFixed(1)}%</Typography>
+                  </Box>
+                  <Typography variant="body1" color={`${statusColor}.main`} sx={{ fontWeight: 'bold' }}>
+                    {getStatusText(budgetSummary.status)}
+                  </Typography>
+                </>
+              )}
+
+              <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+                <TextField
+                  fullWidth
+                  label="Monthly budget"
+                  type="number"
+                  value={budgetAmount}
+                  onChange={(event) => setBudgetAmount(event.target.value)}
+                  slotProps={{ htmlInput: { min: 0, step: '0.01' } }}
+                />
+                <Button
+                  variant="contained"
+                  startIcon={<Save />}
+                  onClick={() => void handleBudgetSave()}
+                  disabled={savingBudget}
                 >
-                  {getStatusText(dashboardData.status)}
-                </Typography>
+                  {savingBudget ? 'Saving' : 'Save'}
+                </Button>
               </Box>
-              
-              <Grid container spacing={2}>
-                <Grid size={6}>
-                  <Paper variant="outlined" sx={{ p: 2, textAlign: 'center' }}>
-                    <Typography variant="body2" color="textSecondary">
-                      Spent
-                    </Typography>
-                    <Typography variant="h6" color="error">
-                      ${dashboardData.totalSpent.toFixed(2)}
-                    </Typography>
-                  </Paper>
-                </Grid>
-                <Grid size={6}>
-                  <Paper variant="outlined" sx={{ p: 2, textAlign: 'center' }}>
-                    <Typography variant="body2" color="textSecondary">
-                      Remaining
-                    </Typography>
-                    <Typography variant="h6" color="success.main">
-                      ${dashboardData.remainingBudget.toFixed(2)}
-                    </Typography>
-                  </Paper>
-                </Grid>
-              </Grid>
             </CardContent>
           </Card>
         </Grid>
 
-        {/* Spending by Category */}
         <Grid size={{ xs: 12, md: 6 }}>
           <Card>
             <CardContent>
@@ -143,53 +228,71 @@ const Dashboard: React.FC = () => {
                 <Category sx={{ mr: 1, color: 'primary.main' }} />
                 <Typography variant="h6">Spending by Category</Typography>
               </Box>
-              
-              <List>
-                {dashboardData.categorySpending.map((item, index) => (
-                  <React.Fragment key={index}>
-                    <ListItem>
-                      <ListItemText
-                        primary={item.category}
-                        secondary={`$${item.total.toFixed(2)} (${item.percentage.toFixed(1)}%)`}
-                      />
-                      <LinearProgress
-                        variant="determinate"
-                        value={item.percentage}
-                        sx={{ width: 100, height: 8, borderRadius: 4 }}
-                      />
-                    </ListItem>
-                    {index < dashboardData.categorySpending.length - 1 && <Divider />}
-                  </React.Fragment>
-                ))}
-              </List>
+              {dashboardData.categorySpending.length === 0 ? (
+                <Typography color="textSecondary">No expenses recorded this month.</Typography>
+              ) : (
+                <List>
+                  {dashboardData.categorySpending.map((item, index) => (
+                    <React.Fragment key={item.category}>
+                      <ListItem>
+                        <ListItemText
+                          primary={item.category}
+                          secondary={`${formatCurrency(item.total)} (${item.percentage.toFixed(1)}%)`}
+                        />
+                        <LinearProgress
+                          variant="determinate"
+                          value={item.percentage}
+                          sx={{ width: 100, height: 8, borderRadius: 4 }}
+                        />
+                      </ListItem>
+                      {index < dashboardData.categorySpending.length - 1 && <Divider />}
+                    </React.Fragment>
+                  ))}
+                </List>
+              )}
             </CardContent>
           </Card>
         </Grid>
 
-        {/* Recent Expenses */}
+        <Grid size={{ xs: 12, sm: 6 }}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6">Total Spent</Typography>
+              <Typography variant="h4" color="error">{formatCurrency(dashboardData.totalSpent)}</Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6 }}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6">Highest Expense</Typography>
+              <Typography variant="h4">{formatCurrency(dashboardData.highestExpense)}</Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+
         <Grid size={12}>
           <Card>
             <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Recent Expenses
-              </Typography>
-              
-              <List>
-                {dashboardData.recentExpenses.map((expense) => (
-                  <React.Fragment key={expense.id}>
-                    <ListItem>
-                      <ListItemText
-                        primary={expense.title}
-                        secondary={`${expense.category} • ${expense.date}`}
-                      />
-                      <Typography variant="h6" color="error">
-                        ${expense.amount.toFixed(2)}
-                      </Typography>
-                    </ListItem>
-                    <Divider />
-                  </React.Fragment>
-                ))}
-              </List>
+              <Typography variant="h6" gutterBottom>Recent Expenses</Typography>
+              {dashboardData.recentExpenses.length === 0 ? (
+                <Typography color="textSecondary">No expenses recorded this month.</Typography>
+              ) : (
+                <List>
+                  {dashboardData.recentExpenses.map((expense) => (
+                    <React.Fragment key={expense.id}>
+                      <ListItem>
+                        <ListItemText
+                          primary={expense.title}
+                          secondary={`${expense.category} - ${new Date(expense.date).toLocaleDateString()}`}
+                        />
+                        <Typography variant="h6" color="error">{formatCurrency(expense.amount)}</Typography>
+                      </ListItem>
+                      <Divider />
+                    </React.Fragment>
+                  ))}
+                </List>
+              )}
             </CardContent>
           </Card>
         </Grid>

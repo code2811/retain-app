@@ -1,5 +1,11 @@
 import api from './api';
-import type { Expense, ExpenseFormData, ExpensesResponse, ExpenseFilters } from '../types/expense.types';
+import type {
+  Expense,
+  ExpenseFormData,
+  ExpensesResponse,
+  ExpenseFilters,
+  ExpenseSummaryResponse,
+} from '../types/expense.types';
 
 export const expenseService = {
   async getExpenses(filters: ExpenseFilters, page: number = 1, limit: number = 10): Promise<ExpensesResponse> {
@@ -19,6 +25,11 @@ export const expenseService = {
     params.append('limit', limit.toString());
 
     const response = await api.get(`/expenses?${params.toString()}`);
+    return response.data;
+  },
+
+  async getExpenseSummary(month: string): Promise<ExpenseSummaryResponse> {
+    const response = await api.get(`/expenses/summary?month=${month}`);
     return response.data;
   },
 

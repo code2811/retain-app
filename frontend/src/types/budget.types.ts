@@ -14,11 +14,13 @@ export interface BudgetFormData {
   amount: number;
 }
 
+export type BudgetStatus = 'within' | 'approaching' | 'over';
+
 export interface BudgetSummary {
   budget: number;
   spent: number;
   remaining: number;
-  status: 'within' | 'approaching' | 'over';
+  status: BudgetStatus;
   percentage: number;
 }
 

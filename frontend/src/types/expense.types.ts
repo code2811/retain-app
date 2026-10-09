@@ -47,3 +47,19 @@ export interface ExpensesResponse {
   };
   message?: string;
 }
+
+export interface ExpenseSummary {
+  totalSpent: number;
+  highestExpense: number;
+  categorySpending: Array<{
+    category: string;
+    total: number;
+    percentage: number;
+  }>;
+  recentExpenses: Expense[];
+}
+
+export interface ExpenseSummaryResponse {
+  success: boolean;
+  data: ExpenseSummary;
+}
