@@ -49,13 +49,22 @@ export const getExpenseSummary = async (
       }))
       .sort((first, second) => second.total - first.total);
 
+    const recentExpenses = expenses.slice(0, 5).map((expense) => ({
+      ...expense.toObject(),
+      id: expense._id.toString(),
+      userId: expense.user.toString(),
+      date: expense.date.toISOString(),
+      createdAt: expense.createdAt.toISOString(),
+      updatedAt: expense.updatedAt.toISOString(),
+    }));
+
     res.status(200).json({
       success: true,
       data: {
         totalSpent,
         highestExpense,
         categorySpending,
-        recentExpenses: expenses.slice(0, 5),
+        recentExpenses,
       },
     });
   } catch (error) {
