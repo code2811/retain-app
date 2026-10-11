@@ -26,9 +26,6 @@ export const errorHandler = (
     message: serverError.message || 'Server Error',
   };
 
-  // Log error for development
-  console.error(err);
-
   // Mongoose bad ObjectId
   if (serverError.name === 'CastError') {
     const message = 'Resource not found';
