@@ -2,6 +2,29 @@ import { Request, Response, NextFunction } from 'express';
 import User from '../models/User';
 import Expense from '../models/Expense';
 import { ICategoryStats } from '../interfaces/category.interface';
+import { IExpense } from '../interfaces/expense.interface';
+
+const formatExpense = (expense: IExpense) => ({
+  id: expense._id.toString(),
+  userId: expense.user.toString(),
+  title: expense.title,
+  description: expense.description,
+  amount: expense.amount,
+  category: expense.category,
+  date: expense.date.toISOString(),
+  paymentMethod: expense.paymentMethod,
+  notes: expense.notes,
+  createdAt: expense.createdAt.toISOString(),
+  updatedAt: expense.updatedAt.toISOString(),
+});
+
+const formatUser = (user: { _id: { toString: () => string }; email: string; name: string; role: 'user' | 'admin'; createdAt: Date }) => ({
+  id: user._id.toString(),
+  email: user.email,
+  name: user.name,
+  role: user.role,
+  createdAt: user.createdAt.toISOString(),
+});
 
 export const getPlatformInsights = async (
   _req: Request,
@@ -11,10 +34,9 @@ export const getPlatformInsights = async (
   try {
     // Get current month for calculations
     const currentMonth = new Date().toISOString().slice(0, 7);
-    const startOfMonth = new Date(currentMonth + '-01');
-    const endOfMonth = new Date(startOfMonth);
-    endOfMonth.setMonth(endOfMonth.getMonth() + 1);
-    endOfMonth.setDate(endOfMonth.getDate() - 1);
+    const [yearText, monthText] = currentMonth.split('-');
+    const startOfMonth = new Date(Date.UTC(Number(yearText), Number(monthText) - 1, 1));
+    const endOfMonth = new Date(Date.UTC(Number(yearText), Number(monthText), 1));
 
     // Total users
     const totalUsers = await User.countDocuments();
@@ -27,7 +49,7 @@ export const getPlatformInsights = async (
 
     // Current month expenses
     const currentMonthExpenses = await Expense.countDocuments({
-      date: { $gte: startOfMonth, $lte: endOfMonth },
+      date: { $gte: startOfMonth, $lt: endOfMonth },
     });
 
     // Spending per category
@@ -59,8 +81,7 @@ export const getPlatformInsights = async (
     // Recent expenses (last 10)
     const recentExpenses = await Expense.find()
       .sort({ createdAt: -1 })
-      .limit(10)
-      .populate('user', 'name email');
+      .limit(10);
 
     // Recent users (last 10)
     const recentUsers = await User.find()
@@ -91,8 +112,8 @@ export const getPlatformInsights = async (
           category: item._id,
           count: item.count,
         })),
-        recentExpenses,
-        recentUsers,
+        recentExpenses: recentExpenses.map(formatExpense),
+        recentUsers: recentUsers.map(formatUser),
       },
     });
   } catch (error) {
