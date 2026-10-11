@@ -10,7 +10,6 @@ const seedDatabase = async () => {
     // Connect to MongoDB
     const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/retain-app';
     await mongoose.connect(mongoURI);
-    console.log('Connected to MongoDB for seeding');
 
     // Create default "Uncategorized" category if it doesn't exist
     const defaultCategory = await Category.findOne({ name: 'Uncategorized' });
@@ -19,9 +18,6 @@ const seedDatabase = async () => {
         name: 'Uncategorized',
         description: 'Default category for uncategorized expenses',
       });
-      console.log('Created default "Uncategorized" category');
-    } else {
-      console.log('Default "Uncategorized" category already exists');
     }
 
     // Create some default categories
@@ -40,7 +36,6 @@ const seedDatabase = async () => {
       const existingCategory = await Category.findOne({ name: categoryData.name });
       if (!existingCategory) {
         await Category.create(categoryData);
-        console.log(`Created category: ${categoryData.name}`);
       }
     }
 
@@ -56,17 +51,10 @@ const seedDatabase = async () => {
         name: 'Admin User',
         role: 'admin',
       });
-      console.log('Created admin user');
-      console.log(`Email: ${adminEmail}`);
-      console.log(`Password: ${adminPassword}`);
-    } else {
-      console.log('Admin user already exists');
     }
 
-    console.log('Database seeding completed successfully');
     process.exit(0);
-  } catch (error) {
-    console.error('Error seeding database:', error);
+  } catch {
     process.exit(1);
   }
 };

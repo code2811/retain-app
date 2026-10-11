@@ -61,7 +61,7 @@ const Login: React.FC = () => {
             width: '100%',
           }}
         >
-          <Typography variant="h4" component="h1" gutterBottom align="center">
+          <Typography variant="h4" component="h1" gutterBottom align="center" color="primary">
             Retain - Login
           </Typography>
           

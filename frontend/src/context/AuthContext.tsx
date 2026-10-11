@@ -55,7 +55,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       } else {
         setState(prev => ({ ...prev, isLoading: false }));
       }
-    } catch (error) {
+    } catch {
       authService.clearAuthData();
       setState({
         user: null,
@@ -124,8 +124,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     
     try {
       await authService.logout();
-    } catch (error) {
-      console.error('Logout error:', error);
+    } catch {
     } finally {
       authService.clearAuthData();
       setState({
