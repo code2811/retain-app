@@ -11,6 +11,8 @@ import {
   Menu,
   MenuItem,
   Avatar,
+  Drawer,
+  Divider,
 } from '@mui/material';
 import { Menu as MenuIcon } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
@@ -20,6 +22,7 @@ const Layout: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -40,6 +43,11 @@ const Layout: React.FC = () => {
     handleClose();
   };
 
+  const navigateFromMobileMenu = (path: string) => {
+    navigate(path);
+    setMobileMenuOpen(false);
+  };
+
   const handleAdmin = () => {
     navigate('/admin');
     handleClose();
@@ -55,6 +63,7 @@ const Layout: React.FC = () => {
             color="inherit"
             aria-label="menu"
             sx={{ mr: 2 }}
+            onClick={() => setMobileMenuOpen(true)}
           >
             <MenuIcon />
           </IconButton>
@@ -63,7 +72,7 @@ const Layout: React.FC = () => {
             Retain
           </Typography>
 
-          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+          <Box sx={{ display: { xs: 'none', sm: 'flex' }, gap: 2, alignItems: 'center' }}>
             <Button color="inherit" onClick={() => navigate('/dashboard')}>
               Dashboard
             </Button>
@@ -114,6 +123,16 @@ const Layout: React.FC = () => {
           </Box>
         </Toolbar>
       </AppBar>
+
+      <Drawer open={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)}>
+        <Box sx={{ width: 260, p: 2 }} role="presentation">
+          <Typography variant="h6" sx={{ mb: 2 }}>Retain</Typography>
+          <Divider sx={{ mb: 1 }} />
+          <Button fullWidth sx={{ justifyContent: 'flex-start' }} onClick={() => navigateFromMobileMenu('/dashboard')}>Dashboard</Button>
+          <Button fullWidth sx={{ justifyContent: 'flex-start' }} onClick={() => navigateFromMobileMenu('/expenses')}>Expenses</Button>
+          {user?.role === 'admin' && <Button fullWidth sx={{ justifyContent: 'flex-start' }} onClick={() => navigateFromMobileMenu('/admin')}>Admin</Button>}
+        </Box>
+      </Drawer>
 
       <Container component="main" sx={{ flex: 1, py: 3 }}>
         <Outlet />

@@ -104,8 +104,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ open, onClose, onSuccess, exp
         setCategoriesLoading(true);
         const response = await categoryService.getCategories();
         setCategories(response.data);
-      } catch (err) {
-        console.error('Failed to load categories:', err);
+      } catch {
       } finally {
         setCategoriesLoading(false);
       }

@@ -44,7 +44,6 @@ const App: React.FC = () => {
               {/* Public routes */}
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
-              <Route path="/register" element={<Register />} />
               
               {/* Protected routes */}
               <Route element={<ProtectedRoute />}>

@@ -8,8 +8,9 @@ import {
   Typography,
   IconButton,
   InputAdornment,
+  Drawer,
 } from '@mui/material';
-import { Search, Clear, FilterList } from '@mui/icons-material';
+import { Search, Clear, Close, FilterList } from '@mui/icons-material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV2';
@@ -27,7 +28,12 @@ import {
 import { categoryService } from '../../services/categoryService';
 import type { Category } from '../../types/category.types';
 
-const FilterSidebar: React.FC = () => {
+interface FilterSidebarProps {
+  mobileOpen: boolean;
+  onMobileClose: () => void;
+}
+
+const FilterSidebar: React.FC<FilterSidebarProps> = ({ mobileOpen, onMobileClose }) => {
   const dispatch = useAppDispatch();
   const filters = useAppSelector((state) => state.filters);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -41,8 +47,7 @@ const FilterSidebar: React.FC = () => {
         setCategoriesLoading(true);
         const response = await categoryService.getCategories();
         setCategories(response.data);
-      } catch (err) {
-        console.error('Failed to load categories:', err);
+      } catch {
       } finally {
         setCategoriesLoading(false);
       }
@@ -135,11 +140,14 @@ const FilterSidebar: React.FC = () => {
     { value: 'asc', label: 'Ascending' },
   ];
 
-  return (
-    <Paper sx={{ width: 300, p: 2, height: 'fit-content' }}>
+  const panel = (
+    <Paper sx={{ width: 300, maxWidth: 'calc(100vw - 32px)', p: 2, height: 'fit-content' }}>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
         <FilterList sx={{ mr: 1 }} />
         <Typography variant="h6">Filters</Typography>
+        <IconButton sx={{ ml: 'auto', display: { xs: 'inline-flex', md: 'none' } }} onClick={onMobileClose} aria-label="Close filters">
+          <Close />
+        </IconButton>
       </Box>
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -292,6 +300,15 @@ const FilterSidebar: React.FC = () => {
         </Button>
       </Box>
     </Paper>
+  );
+
+  return (
+    <>
+      <Box sx={{ display: { xs: 'none', md: 'block' }, flexShrink: 0 }}>{panel}</Box>
+      <Drawer open={mobileOpen} onClose={onMobileClose} sx={{ display: { md: 'none' } }}>
+        {panel}
+      </Drawer>
+    </>
   );
 };
 

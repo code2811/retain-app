@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
+import { FilterQuery } from 'mongoose';
 import Expense from '../models/Expense';
-import { IExpenseInput, IExpenseQuery } from '../interfaces/expense.interface';
+import { IExpense, IExpenseInput, IExpenseQuery } from '../interfaces/expense.interface';
 
 interface ExpenseSummaryQuery {
   month?: string;
@@ -93,7 +94,7 @@ export const getExpenses = async (
     } = req.query;
 
     // Build query
-    const query: any = { user: req.user?._id };
+    const query: FilterQuery<IExpense> = { user: req.user?._id };
 
     // Search in title and description
     if (search) {
@@ -131,7 +132,7 @@ export const getExpenses = async (
     const skip = (Number(page) - 1) * Number(limit);
 
     // Build sort
-    const sort: any = {};
+    const sort: Partial<Record<'date' | 'amount', 1 | -1>> = {};
     sort[sortBy] = sortOrder === 'asc' ? 1 : -1;
 
     // Execute query

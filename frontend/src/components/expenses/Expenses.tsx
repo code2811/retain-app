@@ -15,7 +15,7 @@ import {
   CircularProgress,
   Alert,
 } from '@mui/material';
-import { Add } from '@mui/icons-material';
+import { Add, FilterList } from '@mui/icons-material';
 import { useAppSelector } from '../../store/hooks';
 import { expenseService } from '../../services/expenseService';
 import type { Expense } from '../../types/expense.types';
@@ -40,6 +40,7 @@ const Expenses: React.FC = () => {
   const [showDetail, setShowDetail] = useState(false);
   const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const loadExpenses = async () => {
     try {
@@ -102,21 +103,22 @@ const Expenses: React.FC = () => {
   };
 
   return (
-    <Box sx={{ display: 'flex', gap: 3 }}>
+    <Box sx={{ display: 'flex', gap: 3, flexDirection: { xs: 'column', md: 'row' } }}>
       {/* Filter Sidebar */}
-      <FilterSidebar />
+      <FilterSidebar mobileOpen={filtersOpen} onMobileClose={() => setFiltersOpen(false)} />
 
       {/* Main Content */}
       <Box sx={{ flex: 1 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, flexDirection: { xs: 'column', sm: 'row' }, mb: 3, gap: 2 }}>
           <Typography variant="h4">Expenses</Typography>
-          <Button
-            variant="contained"
-            startIcon={<Add />}
-            onClick={() => setShowForm(true)}
-          >
-            Add Expense
-          </Button>
+          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+            <Button variant="outlined" startIcon={<FilterList />} onClick={() => setFiltersOpen(true)} sx={{ display: { xs: 'inline-flex', md: 'none' } }}>
+              Filters
+            </Button>
+            <Button variant="contained" startIcon={<Add />} onClick={() => setShowForm(true)}>
+              Add Expense
+            </Button>
+          </Box>
         </Box>
 
         {error && (
@@ -131,7 +133,7 @@ const Expenses: React.FC = () => {
           </Box>
         ) : (
           <>
-            <TableContainer component={Paper}>
+            <TableContainer component={Paper} sx={{ overflowX: 'auto' }}>
               <Table>
                 <TableHead>
                   <TableRow>
