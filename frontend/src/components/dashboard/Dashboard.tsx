@@ -145,7 +145,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, gap: 2 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, flexDirection: { xs: 'column', sm: 'row' }, mb: 3, gap: 2 }}>
         <Box>
           <Typography variant="h4">Dashboard</Typography>
           <Typography variant="body1" color="textSecondary">
@@ -156,7 +156,7 @@ const Dashboard: React.FC = () => {
           label="Month"
           type="month"
           value={selectedMonth}
-          onChange={(event) => setSelectedMonth(event.target.value)}
+          onChange={(event) => setSelectedMonth(event.target.value || currentMonth)}
           slotProps={{ inputLabel: { shrink: true } }}
         />
       </Box>

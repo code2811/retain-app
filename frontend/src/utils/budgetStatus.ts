@@ -7,7 +7,7 @@ export interface BudgetStatusResult {
 
 export const getBudgetStatus = (spent: number, budget: number): BudgetStatusResult => {
   if (budget <= 0) {
-    return { status: 'within', percentage: 0 };
+    return { status: spent > 0 ? 'over' : 'within', percentage: spent > 0 ? 100 : 0 };
   }
 
   const percentage = (spent / budget) * 100;

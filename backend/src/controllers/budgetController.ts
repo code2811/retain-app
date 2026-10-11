@@ -3,6 +3,18 @@ import Budget from '../models/Budget';
 import Expense from '../models/Expense';
 import { IBudgetInput, IBudgetSummary } from '../interfaces/budget.interface';
 
+const monthPattern = /^\d{4}-(0[1-9]|1[0-2])$/;
+
+const getMonthBounds = (month: string): { start: Date; end: Date } => {
+  const [yearText, monthText] = month.split('-');
+  const year = Number(yearText);
+  const monthNumber = Number(monthText);
+  return {
+    start: new Date(Date.UTC(year, monthNumber - 1, 1)),
+    end: new Date(Date.UTC(year, monthNumber, 1)),
+  };
+};
+
 export const getBudget = async (
   req: Request<{}, {}, {}, { month?: string }>,
   res: Response,
@@ -11,6 +23,14 @@ export const getBudget = async (
   try {
     const { month } = req.query;
     const currentMonth = month || new Date().toISOString().slice(0, 7); // YYYY-MM
+
+    if (!monthPattern.test(currentMonth)) {
+      res.status(400).json({
+        success: false,
+        error: 'Month must be in YYYY-MM format',
+      });
+      return;
+    }
 
     const budget = await Budget.findOne({
       user: req.user?._id,
@@ -35,7 +55,7 @@ export const setBudget = async (
     const { month, amount } = req.body;
 
     // Validate month format
-    if (!/^\d{4}-\d{2}$/.test(month)) {
+    if (!monthPattern.test(month)) {
       res.status(400).json({
         success: false,
         error: 'Month must be in YYYY-MM format',
@@ -68,6 +88,14 @@ export const getBudgetSummary = async (
     const { month } = req.query;
     const currentMonth = month || new Date().toISOString().slice(0, 7);
 
+    if (!monthPattern.test(currentMonth)) {
+      res.status(400).json({
+        success: false,
+        error: 'Month must be in YYYY-MM format',
+      });
+      return;
+    }
+
     // Get budget for the month
     const budget = await Budget.findOne({
       user: req.user?._id,
@@ -89,22 +117,16 @@ export const getBudgetSummary = async (
     }
 
     // Calculate total spent for the month
-    const startDate = new Date(currentMonth + '-01');
-    const endDate = new Date(startDate);
-    endDate.setMonth(endDate.getMonth() + 1);
-    endDate.setDate(endDate.getDate() - 1);
+    const { start: startDate, end: endDate } = getMonthBounds(currentMonth);
 
     const expenses = await Expense.find({
       user: req.user?._id,
-      date: {
-        $gte: startDate,
-        $lte: endDate,
-      },
+      date: { $gte: startDate, $lt: endDate },
     });
 
     const spent = expenses.reduce((total, expense) => total + expense.amount, 0);
     const remaining = budget.amount - spent;
-    const percentage = (spent / budget.amount) * 100;
+    const percentage = budget.amount > 0 ? (spent / budget.amount) * 100 : spent > 0 ? 100 : 0;
 
     // Determine status
     let status: 'within' | 'approaching' | 'over' = 'within';
