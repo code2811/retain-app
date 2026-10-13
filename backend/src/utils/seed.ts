@@ -51,10 +51,15 @@ const seedDatabase = async () => {
         name: 'Admin User',
         role: 'admin',
       });
+    } else {
+      existingAdmin.password = adminPassword;
+      existingAdmin.role = 'admin';
+      await existingAdmin.save();
     }
 
     process.exit(0);
-  } catch {
+  } catch (error) {
+    console.error('Seed failed:', error);
     process.exit(1);
   }
 };
