@@ -36,8 +36,9 @@ Retain is a full-stack web application for managing personal expenses and monthl
 
 ### Deployment
 - Frontend: Vercel/Netlify
-- Live frontend: https://retain-app-lyart.vercel.app/
+- Live frontend: [https://retain-app-lyart.vercel.app](https://retain-app-lyart.vercel.app)
 - Backend: Render/Railway/Heroku
+- Live backend: [https://retain-backend-oy9l.onrender.com](https://retain-backend-oy9l.onrender.com)
 - Database: MongoDB Atlas/PostgreSQL hosting
 
 ## Project Structure
