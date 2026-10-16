@@ -12,7 +12,11 @@ import {
   Box,
   Alert,
   CircularProgress,
+  InputAdornment,
+  IconButton,
 } from '@mui/material';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { useAuth } from '../../context/AuthContext';
 import type { LoginCredentials } from '../../types/user.types';
 
@@ -25,6 +29,7 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
   const { login, isLoading, error } = useAuth();
   const [formError, setFormError] = useState<string>('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -90,12 +95,27 @@ const Login: React.FC = () => {
             <TextField
               fullWidth
               label="Password"
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               {...register('password')}
               error={!!errors.password}
               helperText={errors.password?.message}
               margin="normal"
               disabled={isLoading}
+              slotProps={{
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                        onClick={() => setShowPassword((current) => !current)}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                },
+              }}
             />
 
             <Button
