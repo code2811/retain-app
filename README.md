@@ -1,220 +1,160 @@
 # Retain: A Personal Expense & Budget Manager
 
-## Project Overview
-Retain is a full-stack web application for managing personal expenses and monthly budgets. Built with React + TypeScript + Vite for the frontend and a backend API to manage financial data.
+Retain helps me track personal expenses and stay within a monthly budget. I
+built it for my ALU Summative Project to practise building a full-stack
+application with authentication, user data ownership and admin features.
 
-## Features
+**Live app:** https://retain-app-lyart.vercel.app
 
-### User Features
-- **Expense Management**: Create, view, update, and delete personal expenses
-- **Budget Tracking**: Set and monitor monthly spending budgets
-- **Dashboard**: View spending summaries, remaining budget, and recent expenses
-- **Filtering & Search**: Filter expenses by category, payment method, date, and amount
-- **Responsive Design**: Works on desktop, tablet, and mobile devices
+**Backend API:** https://retain-backend-oy9l.onrender.com
 
-### Admin Features
-- **Category Management**: Create, update, and delete expense categories
-- **Platform Insights**: View analytics on users, expenses, and spending patterns
-- **Admin Dashboard**: Access to platform statistics and management tools
+> Note: the backend runs on Render's free tier, so the first request can take
+> up to a minute while it wakes up. Please give it a moment.
 
-## Tech Stack
+## What I built
+
+**As a user**
+
+- Sign up, sign in and sign out
+- Add, edit and delete personal expenses
+- Search, filter and sort expenses with pagination
+- Set a monthly budget and see how much is left
+- Use the app on a phone, tablet or laptop
+
+**As an admin**
+
+- Create, edit and delete categories
+- See platform insights about users, expenses and spending by category
+
+## Tech I used
+
+- **Frontend:** React `^19.2.8`, React DOM `^19.2.8`, TypeScript `~6.0.2`,
+  Vite `^7.3.7`, Material UI `^9.4.0`, React Router DOM `^7.18.4`,
+  Axios `^1.20.0`, React Hook Form `^7.89.0`, Yup `^1.7.1`, and Recharts
+  `^3.10.1`
+- **State:** React Context for authentication, Redux Toolkit `^2.13.0` and
+  React Redux `^9.3.0` for expense filters and results
+- **Backend:** Node.js, Express `^4.21.2`, TypeScript `^5.7.3`,
+  Express Validator `^7.2.1`, Helmet `^8.0.0`, Morgan `^1.10.0`, and CORS
+  `^2.8.5`
+- **Database:** MongoDB with Mongoose `^8.9.5`
+- **Authentication:** JSON Web Tokens with JSON Web Token `^9.0.2` and
+  bcryptjs `^2.4.3`
+- **Hosting:** Vercel for the frontend and Render for the backend
+
+## How it works
+
+- Authentication lives in React Context. It holds the user, token and role,
+  and protects the routes.
+- Filters live in Redux. When a filter or sort option changes, Redux calls the
+  API, and the backend performs the search, filtering, sorting and pagination.
+  This means the browser does not load every expense at once.
+- Users only get their own expenses and budgets. Admin routes are protected on
+  the backend with `protect` and `authorize('admin')`.
+- When an admin deletes a category, its expenses move to `Uncategorized` so
+  they are not left without a category.
+
+## Run it locally
+
+I use Node.js 18 or newer, npm, Git and a MongoDB database.
+
+```bash
+git clone https://github.com/code2811/retain-app.git
+cd retain-app
+```
+
+### Backend
+
+```bash
+cd backend
+npm install
+# Create a .env file with the variables listed below.
+npm run build
+npm run seed
+npm start
+```
+
+For development, I use:
+
+```bash
+npm run dev
+```
 
 ### Frontend
-- React 18 with TypeScript
-- Vite for build tooling
-- Redux for state management (filtering, searching, sorting)
-- React Context for authentication
-- Material-UI or Bootstrap for UI components
-- Axios for API communication
 
-### Backend (Choose one)
-- **Option 1**: Node.js + Express + MongoDB
-- **Option 2**: Python + FastAPI/Flask + PostgreSQL
+In a separate terminal:
 
-### Database
-- MongoDB (NoSQL) or PostgreSQL (SQL)
-
-### Deployment
-- Frontend: Vercel/Netlify
-- Live frontend: [https://retain-app-lyart.vercel.app](https://retain-app-lyart.vercel.app)
-- Backend: Render/Railway/Heroku
-- Live backend: [https://retain-backend-oy9l.onrender.com](https://retain-backend-oy9l.onrender.com)
-- Database: MongoDB Atlas/PostgreSQL hosting
-
-## Project Structure
-```
-retain-app/
-├── frontend/          # React + TypeScript + Vite
-├── backend/           # Node.js/Express or Python/FastAPI
-├── docs/              # Documentation
-└── README.md          # This file
+```bash
+cd frontend
+npm install
+# Create a .env file with VITE_API_URL.
+npm run dev
 ```
 
-## Getting Started
+### Environment variables
 
-### Prerequisites
-- Node.js 18+ or Python 3.9+
-- npm/yarn or pip
-- Git
+These are the environment variable names used by the application:
 
-### Installation
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/code2811/retain-app.git
-   cd retain-app
-   ```
+- **Backend:** `MONGODB_URI`, `JWT_SECRET`, `JWT_EXPIRE`, `PORT`,
+  `FRONTEND_URL`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`
+- **Frontend:** `VITE_API_URL`
 
-2. Set up frontend:
-   ```bash
-   cd frontend
-   npm install
-   npm run dev
-   ```
+The seed command creates or updates the admin account using
+`ADMIN_EMAIL` and `ADMIN_PASSWORD`.
 
-3. Set up backend:
-   ```bash
-   cd backend
-   # Follow backend-specific setup instructions
-   ```
-
-## API Endpoints
+## API
 
 ### Authentication
-- `POST /api/auth/register` - User registration
-- `POST /api/auth/login` - User login
-- `POST /api/auth/logout` - User logout
-- `GET /api/auth/me` - Get current user
+
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+- `POST /api/auth/logout`
+- `GET /api/auth/me`
 
 ### Expenses
-- `GET /api/expenses` - Get all expenses (with filters)
-- `GET /api/expenses/:id` - Get single expense
-- `POST /api/expenses` - Create new expense
-- `PUT /api/expenses/:id` - Update expense
-- `DELETE /api/expenses/:id` - Delete expense
+
+- `GET /api/expenses`
+- `GET /api/expenses/:id`
+- `POST /api/expenses`
+- `PUT /api/expenses/:id`
+- `DELETE /api/expenses/:id`
 
 ### Budgets
-- `GET /api/budgets` - Get user budgets
-- `POST /api/budgets` - Create/update budget
-- `GET /api/budgets/summary` - Get budget summary
+
+- `GET /api/budgets`
+- `POST /api/budgets`
+- `GET /api/budgets/summary`
 
 ### Categories
-- `GET /api/categories` - Get all categories
-- `POST /api/categories` - Create category (admin only)
-- `PUT /api/categories/:id` - Update category (admin only)
-- `DELETE /api/categories/:id` - Delete category (admin only)
+
+- `GET /api/categories`
+- `POST /api/categories` (admin only)
+- `PUT /api/categories/:id` (admin only)
+- `DELETE /api/categories/:id` (admin only)
 
 ### Admin
-- `GET /api/admin/insights` - Get platform insights
-- `GET /api/admin/users` - Get user statistics
-- `GET /api/admin/expenses` - Get expense statistics
 
-## Data Models
+- `GET /api/admin/insights` (admin only)
 
-### User
-```typescript
-interface User {
-  id: string;
-  email: string;
-  password: string;
-  name: string;
-  role: 'user' | 'admin';
-  createdAt: Date;
-}
-```
+## Things I know could be better
 
-### Expense
-```typescript
-interface Expense {
-  id: string;
-  userId: string;
-  title: string;
-  description?: string;
-  amount: number;
-  category: string;
-  date: Date;
-  paymentMethod: 'cash' | 'card' | 'bank_transfer' | 'mobile_money';
-  notes?: string;
-  createdAt: Date;
-}
-```
+- The admin role is given to whoever registers with `ADMIN_EMAIL`. For a
+  real product, I would use invitations or verified admin accounts.
+- Expenses store the category name, not an ID, so renaming a category would
+  need extra handling.
+- There are no automated tests yet.
 
-### Budget
-```typescript
-interface Budget {
-  id: string;
-  userId: string;
-  month: string; // YYYY-MM
-  amount: number;
-  createdAt: Date;
-}
-```
+## What was hard
 
-### Category
-```typescript
-interface Category {
-  id: string;
-  name: string;
-  description?: string;
-  createdAt: Date;
-}
-```
+The hardest part was keeping authentication in React Context while using
+Redux for expense filtering, sorting and pagination. I also had to make sure
+the backend applied the logged-in user's ID to every personal data query.
 
-## Development Roadmap
+## What I would add next
 
-### Phase 1: Project Setup & Authentication
-- [ ] Initialize frontend with React + TypeScript + Vite
-- [ ] Set up backend with chosen technology
-- [ ] Implement user authentication (Context API)
-- [ ] Create basic UI components
+I would add automated tests for authentication, ownership checks and admin
+routes. I would also add export to CSV and recurring expenses.
 
-### Phase 2: Core Expense Management
-- [ ] Implement expense CRUD operations
-- [ ] Create expense form and listing components
-- [ ] Set up Redux for filtering state
-- [ ] Implement basic filtering and sorting
+## Author
 
-### Phase 3: Budget & Dashboard
-- [ ] Implement budget tracking
-- [ ] Create user dashboard
-- [ ] Add spending summaries and charts
-- [ ] Implement responsive design
-
-### Phase 4: Admin Features
-- [ ] Implement admin dashboard
-- [ ] Add category management
-- [ ] Create platform insights
-- [ ] Implement protected routes
-
-### Phase 5: Polish & Deployment
-- [ ] Add error handling and validation
-- [ ] Implement pagination
-- [ ] Deploy frontend and backend
-- [ ] Write documentation
-
-## Assessment Requirements Coverage
-
-### React Skills (70%)
-- ✅ React components and hooks
-- ✅ Redux for filtering state
-- ✅ Context API for authentication
-- ✅ TypeScript for type safety
-- ✅ Responsive UI design
-- ✅ Expense CRUD, budget tracking, dashboards
-
-### Backend Development (20%)
-- ✅ RESTful API design
-- ✅ Database integration
-- ✅ Authentication & authorization
-- ✅ Admin endpoints
-
-### Project Completion (10%)
-- ✅ Full functionality
-- ✅ Frontend/backend integration
-- ✅ Documentation
-- ✅ Deployment
-
-## License
-MIT
-
-## Contact
-For questions or support, please open an issue in the GitHub repository.
+Frida Kayiranga, final-year Software Engineering student at ALU.
