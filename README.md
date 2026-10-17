@@ -1,8 +1,8 @@
 # Retain: A Personal Expense & Budget Manager
 
-Retain helps me track personal expenses and stay within a monthly budget. I
-built it for my ALU Summative Project to practise building a full-stack
-application with authentication, user data ownership and admin features.
+Retain helps me track my personal expenses and stay within a monthly budget.
+I built it for my ALU Summative Project and the project helped me practise
+connecting a React frontend to a Node and MongoDB backend.
 
 **Live app:** https://retain-app-lyart.vercel.app
 
@@ -28,18 +28,13 @@ application with authentication, user data ownership and admin features.
 
 ## Tech I used
 
-- **Frontend:** React `^19.2.8`, React DOM `^19.2.8`, TypeScript `~6.0.2`,
-  Vite `^7.3.7`, Material UI `^9.4.0`, React Router DOM `^7.18.4`,
-  Axios `^1.20.0`, React Hook Form `^7.89.0`, Yup `^1.7.1`, and Recharts
-  `^3.10.1`
-- **State:** React Context for authentication, Redux Toolkit `^2.13.0` and
-  React Redux `^9.3.0` for expense filters and results
-- **Backend:** Node.js, Express `^4.21.2`, TypeScript `^5.7.3`,
-  Express Validator `^7.2.1`, Helmet `^8.0.0`, Morgan `^1.10.0`, and CORS
-  `^2.8.5`
-- **Database:** MongoDB with Mongoose `^8.9.5`
-- **Authentication:** JSON Web Tokens with JSON Web Token `^9.0.2` and
-  bcryptjs `^2.4.3`
+- **Frontend:** React, TypeScript, Vite, Material UI, React Router, Axios,
+  React Hook Form, Yup, Recharts
+- **State:** React Context for authentication, Redux Toolkit for expense
+  filters and results
+- **Backend:** Node.js, Express, TypeScript
+- **Database:** MongoDB with Mongoose
+- **Authentication:** JWT (jsonwebtoken) and bcryptjs
 - **Hosting:** Vercel for the frontend and Render for the backend
 
 ## How it works
