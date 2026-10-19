@@ -18,6 +18,12 @@ const categorySchema = new Schema<ICategory>(
   },
   {
     timestamps: true,
+    toJSON: {
+      transform: (_doc, ret) => {
+        ret.id = ret._id.toString();
+        return ret;
+      },
+    },
   }
 );
 
