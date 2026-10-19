@@ -46,6 +46,12 @@ const expenseSchema = new Schema<IExpense>(
   },
   {
     timestamps: true,
+    toJSON: {
+      transform: (_doc, ret) => {
+        ret.id = ret._id.toString();
+        return ret;
+      },
+    },
   }
 );
 
